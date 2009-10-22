@@ -148,6 +148,7 @@ package org.amqp
          **/
         public function onSocketData(event:Event):void {
             while (delegate.isConnected() && delegate.bytesAvailable > 0) {
+              try {
                 var frame:Frame = parseFrame(delegate);
                 if (frame == null) return;
                 if (frame.type == AMQP.FRAME_HEARTBEAT) {
@@ -158,6 +159,10 @@ package org.amqp
                     var session:Session = sessionManager.lookup(frame.channel);
                     session.handleFrame(frame);
                 }
+              }
+              catch (e:Error) {
+                trace("Parse exception: ",e);
+              }
             }
             maybeSendHeartbeat();
         }
